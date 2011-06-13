@@ -72,8 +72,8 @@ object Lister extends App {
       tree <- lsR(file("."))
     } yield process(tree)
 
-    // We haven't called File#listFiles yet! But we're not at the "end of the universe"
-    // so we can use `unsafePerformIO`.
+    // We haven't called File#listFiles yet! But we're at the "end of the universe"
+    // so it's time to use `unsafePerformIO`.
     paths.unsafePerformIO.print
 
     // a list of IO Actions, each evaluating to a list of files in one directory.
