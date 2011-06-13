@@ -22,18 +22,18 @@ object Lister extends App {
    * For each node in the tree, calculate the path back to the root.
    */
   def paths[A](tree: Tree[A]): List[List[A]] = {
+    // A Zipper ('Tree Locator') to allow navigation up and down the tree
     val loc: TreeLoc[A] = tree.loc
     val treeOfLocs: Tree[TreeLoc[A]] = loc.cojoin.toTree
     treeOfLocs.map(_.path.toList).listr
   }
 
   /**
-   * Returns a string drawing of the tree of countSubNodes
+   * Returns a string drawing of the tree of countSubNodes, and a list of all paths from nodes to the root.
    */
   def process(tree: Tree[File]): (String, List[List[String]]) = {
     val totalled = countSubNodes(tree).drawTree
 
-    // A Zipper ('Tree Locator') to allow navigation up and down the tree
     val treePaths: List[List[File]] = paths(tree)
     val treePathNames: List[List[String]] = treePaths.map2[List, File, String](_.getName)
 
@@ -41,8 +41,8 @@ object Lister extends App {
   }
 
   object Impure {
+    // Untracked side-effect `listFiles`.
     def ls(dir: File): List[File] = {
-      // Untracked side-effect `listFiles`.
       val files = Option(dir.listFiles())
       ~files.map(_.toList)
     }
@@ -75,6 +75,8 @@ object Lister extends App {
     // We haven't called File#listFiles yet! But we're at the "end of the universe"
     // so it's time to use `unsafePerformIO`.
     paths.unsafePerformIO.print
+
+    // More fun with IO Actions:
 
     // a list of IO Actions, each evaluating to a list of files in one directory.
     val lsActions: List[IO[List[File]]] = List(file("target"), file("src")).map(ls)
