@@ -2,6 +2,7 @@ package sx
 
 import scalaz._
 import Scalaz._
+import collection.Seq
 
 object Monoids extends App {
   object Step1 {
@@ -59,6 +60,19 @@ object Monoids extends App {
     List(1.some, 2.some, none[Int]).sumr assert_===(Some(3))
 
     Seq(0, 1, 2).foldMap(x => (x, x * x)) assert_===((3, 5))
+
+    val fs: Seq[Int => Option[Int]] = Seq(
+       (i: Int) => {println("f1"); if (i >= 0) Some(1) else None},
+       (i: Int) => {println("f2"); if (i >= -1)
+         Some(2)
+       else
+         None
+       }
+    )
+    println("fSeq(1)")
+    val result = fs.reverse.foldMap(_(0).fst)
+    result.println
+
   }
 
   Step3
