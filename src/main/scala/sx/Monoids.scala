@@ -11,7 +11,7 @@ object Monoids extends App {
       def append(a1: A, a2: A): A
     }
 
-    object IntM extends Mon[Int] {
+    object IntMon extends Mon[Int] {
       def append(a1: Int, a2: Int): Int = a1 + a2
 
       def zero: Int = 0
@@ -25,7 +25,7 @@ object Monoids extends App {
 
     def sumList[A](as: List[A], m: Mon[A]) = as.foldLeft(m.zero)(m.append)
 
-    sumList(List(1, 2, 3), IntM)
+    sumList(List(1, 2, 3), IntMon)
   }
 
   // Use implicits to wire the correct Mon into sumList.
@@ -47,13 +47,24 @@ object Monoids extends App {
       def append(a1: String, a2: String): String = a1 + a2
     }
 
-    def sumList[A](as: List[A])(implicit m: Mon[A]) = as.foldLeft(m.zero)(m.append)
+    def sumList[A](as: List[A])(implicit m: Mon[A]) =
+      as.foldLeft(m.zero)(m.append)
+
+    implicit def Tuple2Mon[A, B](implicit ma: Mon[A], mb: Mon[B])
+    : Mon[(A, B)] = new Mon[(A, B)] {
+      def append(a1: (A, B), a2: (A, B)): (A, B) =
+        (ma.append(a1._1, a2._1), mb.append(a1._2, a2._2))
+
+      def zero: (A, B) = (ma.zero, mb.zero)
+    }
 
     sumList(List(1, 2, 3))
+    println(sumList(List((1, "one"), (2, "two"))))
   }
 
   // Okay, lets use scalaz.Monoid instead
   object Step3 {
+
 
     ((1, "a") |+| (2, "b")) assert_===( (3, "ab"))
     
@@ -75,5 +86,5 @@ object Monoids extends App {
 
   }
 
-  Step3
+  Step2
 }
